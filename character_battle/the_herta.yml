@@ -1,0 +1,145 @@
+character:
+  name: "大黑塔"
+  id: 1401
+  base_attributes:
+    attack: 1000
+    speed: 100
+    crit_damage: 50
+    energy: 100
+  skills:
+    attack:
+      - name: "开窍了吗"
+        skill_type: basic_attack
+        cost:
+          sp: 1
+          energy_gain: 20
+        description: "对指定敌方单体造成等同于大黑塔100%攻击力的冰属性伤害"
+        effect:
+          damage_type: ice
+          damage_ratio: 100
+          target: single
+          hidden_values: [3, 1, 0.3]
+        unlock_level: 6
+        tags: ["single_hit"]
+
+    skill:
+      - name: "格局打开"
+        skill_type: normal_skill
+        cost:
+          sp: 1
+          energy_gain: 30
+        description: "对指定敌方单体造成70%攻击力的冰属性伤害并施加1层【解读】，对命中目标及其相邻目标造成70%伤害（重复2次）"
+        effect:
+          damage_type: ice
+          damage_ratio: 70
+          target: single_with_adjacent
+          repeat_times: 2
+          debuff: "解读"
+          debuff_stack: 1
+        unlock_level: 10
+        tags: ["aoe", "debuff"]
+
+    ultimate:
+      - name: "早说了是魔法吧"
+        skill_type: ultimate
+        cost:
+          sp: 220
+          energy_gain: 5
+        description: "重排敌方全体【解读】层数并造成200%冰伤，攻击力提升80%持续3回合，立即行动并获得1层【灵感】"
+        effect:
+          damage_type: ice
+          damage_ratio: 200
+          target: all
+          buff:
+            name: "攻击力提升"
+            value: 80
+            duration: 3
+          extra_action: true
+          inspiration_gain: 1
+        unlock_level: 10
+        tags: ["group_debuff", "self_buff"]
+
+    talent:
+      - name: "拿来吧你"
+        skill_type: passive
+        description: "敌方入场时施加1层【解读】，波次开始时对精英目标随机施加25层。解读层数提升伤害倍率"
+        effect:
+          debuff: "解读"
+          initial_stack: 25
+          damage_bonus:
+            per_stack:
+              main_target: 8
+              others: 4
+            dual_intellect_bonus:
+              main_target: 8
+              others: 4
+          max_stack: 42
+        unlock_level: 10
+        tags: ["combat_start", "stack_damage"]
+
+    technique:
+      - name: "看看好看的"
+        skill_type: technique
+        description: "下回合攻击力提升60%，标记战利品，特殊场景附加真实伤害"
+        effect:
+          buff:
+            name: "攻击力提升"
+            value: 60
+            duration: 2
+          marking: 3
+          special_damage:
+            type: real
+            ratio:
+              elite: 30
+              normal: 99
+        tags: ["pre_combat", "utility"]
+
+    enhanced_skill:
+      - name: "我有一个大胆的想法"
+        skill_type: enhanced_skill
+        linked_skill: "格局打开"
+        cost:
+          inspiration: 1
+        description: "消耗1层【灵感】造成80%冰伤并施加解读，伤害范围扩大，最终全体40%伤害"
+        effect:
+          damage_type: ice
+          base_damage_ratio: 80
+          final_damage_ratio: 40
+          target: enhanced_single_with_adjacent
+          repeat_times: 2
+          debuff: "解读"
+          debuff_stack: 1
+        unlock_level: 10
+        tags: ["enhanced", "inspiration"]
+
+  passive_effects:
+    - name: "冷漠的诚实"
+      description: "我方攻击时施加1层解读，每击中1目标恢复3能量（最多5目标），强化战技时若解读达42层伤害提高50%"
+      effect:
+        on_attack:
+          apply_debuff: "解读"
+          energy_regen: 3
+          max_targets: 5
+        enhanced_damage:
+          condition: "解读>=42"
+          bonus: 50
+
+    - name: "视界外来信"
+      description: "队伍智识角色≥2时暴击伤害+80%，攻击后对解读最高目标补加1层（智识角色额外+2）"
+      effect:
+        on_combat_start:
+          condition: "intellect_count>=2"
+          apply_buff:
+            crit_damage: 80
+        on_attack:
+          apply_debuff:
+            name: "解读"
+            stack: 1
+            enhanced_stack:
+              condition: "attacker_intellect"
+              value: 2
+
+  attributes:
+    ice_damage_bonus: 22.4
+    attack_bonus: 18.0
+    speed_bonus: 5.0
